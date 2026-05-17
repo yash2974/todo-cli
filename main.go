@@ -1,29 +1,11 @@
+/*
+Copyright © 2026 NAME HERE <EMAIL ADDRESS>
+
+*/
 package main
 
-import (
-	"fmt"
-	"TODOCLI/services"
-)
+import "TODOCLI/cmd"
 
 func main() {
-	services.ReadExcel()
-
-	services.DisplayMenu()
-	for {
-		var choice int
-		fmt.Scanln(&choice)
-
-		switch choice {
-		case 1:
-			services.ListTask()
-		case 2:
-			services.Addtask()
-		case 3:
-			services.TaskDetail()
-		}
-	}
+	cmd.Execute()
 }
-
-
-
-

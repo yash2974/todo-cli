@@ -2,7 +2,6 @@ package services
 
 import (
 	"fmt"
-	"time"
 	"bufio"
 	"os"
 	"strings"
@@ -12,11 +11,39 @@ import (
 var tasks []models.Task
 var reader = bufio.NewReader(os.Stdin)
 
-func DisplayMenu() {
-	fmt.Println("TodoCLI")
-	fmt.Println("LIST TASK - 1")
-	fmt.Println("ADD TASK - 2")
-	fmt.Println("TASK DETAILS - 3")
+func HelpMenu() {
+	fmt.Println(`
+████████╗ ██████╗ ██████╗  ██████╗      ██████╗██╗     ██╗
+╚══██╔══╝██╔═══██╗██╔══██╗██╔═══██╗    ██╔════╝██║     ██║
+   ██║   ██║   ██║██║  ██║██║   ██║    ██║     ██║     ██║
+   ██║   ██║   ██║██║  ██║██║   ██║    ██║     ██║     ██║
+   ██║   ╚██████╔╝██████╔╝╚██████╔╝    ╚██████╗███████╗██║
+   ╚═╝    ╚═════╝ ╚═════╝  ╚═════╝      ╚═════╝╚══════╝╚═╝
+
+            
+`)
+	fmt.Println(`
+================ TODO CLI ================
+
+Commands:
+
+list
+    Show all tasks
+
+add
+    Create a new task
+
+detail <task_id>
+    Show details of a specific task
+
+help
+    Show available commands
+
+exit
+    Close the application
+
+==========================================
+`)
 }
 
 func Addtask() {
@@ -26,41 +53,32 @@ func Addtask() {
 	taskTitle, _ = reader.ReadString('\n')
 	taskTitle = strings.TrimSpace(taskTitle)
 
-	createdOn := time.Now()
 
-	task := models.Task{
-		Title:      taskTitle,
-		Done:       false,
-		Created_On: createdOn.String(),
-	}
-
-	tasks = append(tasks, task)
+	AddTaskExcel(taskTitle)
 }
 
 func ListTask() {
-	
-	if len(tasks) > 0 {
-		fmt.Println("CURRENT TASKS")
-		for i := 0; i < len(tasks); i++ {
-			fmt.Printf("%d. %s\n", i+1, tasks[i].Title)
-		}
-	} else {
-		fmt.Println("No tasks found!")
-	}
-	DisplayMenu()
-	
+	ReadExcel()
+	fmt.Printf("\n")
 }
 
-func TaskDetail() {
+func TaskDetail(param string) {
+	var taskId string
+	if param == "" {
 	fmt.Println("Enter task ID")
-	var taskId int
-	fmt.Scanln(&taskId)
-	if (len(tasks)<taskId){
-		fmt.Println("No task found")
-		DisplayMenu()
+		fmt.Scanln(&taskId)
 	} else {
-		fmt.Printf("%s\n", tasks[taskId-1].Title)
-		fmt.Printf("%s: %s\n", "Created On", tasks[taskId-1].Created_On)
-		fmt.Printf("%s: %t\n", "Completed", tasks[taskId-1].Done)
+		taskId = param
 	}
+	taskDetailData := ExcelTaskDetail(taskId)
+
+	if taskDetailData == nil {
+		fmt.Println("Task not found")
+		return
+	}
+
+	fmt.Printf("ID: %s\n", taskDetailData[0])
+	fmt.Printf("Title: %s\n", taskDetailData[1])
+	fmt.Printf("Completed: %s\n", taskDetailData[2])
+	fmt.Printf("Created On: %s\n", taskDetailData[3])
 }
