@@ -1,6 +1,5 @@
 /*
 Copyright © 2026 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
@@ -21,13 +20,18 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// fmt.Println("list called")
-		services.ReadExcel()
+		count, _ := cmd.Flags().GetInt("count")  // Use GetInt for IntP
+		done, _ := cmd.Flags().GetString("done") // Use GetBool for BoolP
+		services.ReadExcel(count, done)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(listCmd)
-
+	// StringP(name, shorthand, defaultValue, description) - convention
+	listCmd.Flags().IntP("count", "c", 5, "Number of tasks")
+	listCmd.Flags().StringP("done", "d", "false", "task done?")
+	// TODO: add pagination later
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command

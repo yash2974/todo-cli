@@ -57,10 +57,10 @@ func Addtask() {
 	AddTaskExcel(taskTitle)
 }
 
-func ListTask() {
-	ReadExcel()
-	fmt.Printf("\n")
-}
+// func ListTask() {
+// 	ReadExcel()
+// 	fmt.Printf("\n")
+// }
 
 func TaskDetail(param string) {
 	var taskId string
