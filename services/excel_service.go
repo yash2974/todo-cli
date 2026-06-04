@@ -7,16 +7,12 @@ import (
 	"strconv"
 	"path/filepath"
 	"os"
-	"github.com/joho/godotenv"
 )
 
 func getExcelFilePath() string {
-	godotenv.Load()
-	filePath := os.Getenv("TODO_EXCEL_PATH")
-	if filePath == "" {
-		// Default path if not set
-		filePath = filepath.Join(os.Getenv("USERPROFILE"), "TODOCLI", "Book1.xlsx")
-	}
+	// err := godotenv.Load()
+	// fmt.Println("Load err:", err)
+	filePath := "C:\\Users\\yashb\\Documents\\Book1.xlsx"
 	return filePath
 }
 
