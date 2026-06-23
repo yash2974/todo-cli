@@ -143,6 +143,8 @@ func CreateExcel() {
 	f.SetCellValue("Sheet1", "D1", "Created_On")
 	f.SetCellValue("Sheet2", "A1", "nextId")
 	f.SetCellValue("Sheet2", "B1", 0)
+	f.SetCellValue("Sheet2", "A2", "faps")
+	f.SetCellValue("Sheet2", "B2", 0)
 	// Set active sheet of the workbook.
 	// f.SetActiveSheet(index)
 	// Save spreadsheet by thex given path.
