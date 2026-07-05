@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"bufio"
 	"os"
-	"strings"
 	"TODOCLI/models"
 )
 
@@ -46,16 +45,16 @@ exit
 `)
 }
 
-func Addtask() {
-	fmt.Println("Enter your task here")
-	var taskTitle string
-	// fmt.Scanln(&taskTitle)
-	taskTitle, _ = reader.ReadString('\n')
-	taskTitle = strings.TrimSpace(taskTitle)
+// func Addtask() {
+// 	fmt.Println("Enter your task here")
+// 	var taskTitle string
+// 	// fmt.Scanln(&taskTitle)
+// 	taskTitle, _ = reader.ReadString('\n')
+// 	taskTitle = strings.TrimSpace(taskTitle)
 
 
-	AddTaskExcel(taskTitle)
-}
+// 	AddTaskExcel(taskTitle)
+// }
 
 // func ListTask() {
 // 	ReadExcel()

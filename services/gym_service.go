@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func TagGym(log bool, day string) {
+func TagGym(log int, day string) {
 	filePath := getExcelFilePath()
 	f, err := excelize.OpenFile(filePath)
 	if err != nil {
@@ -41,17 +41,17 @@ func TagGym(log bool, day string) {
 	}
 	switch method {
 	case "log":
-		gymlogs(f)
+		gymlogs(f, log)
 	case "day":
 		gymlogger(f, day, logIdx)
 	default: 
-		gymlogs(f)
+		gymlogs(f, log)
 	}
 	return
 }
 
 //function for gym logs
-func gymlogs(f *excelize.File) {
+func gymlogs(f *excelize.File, log int) {
 	logs, err := f.GetRows("Sheet3")
 	if err != nil {
 		fmt.Printf("Error in reading!")
@@ -61,7 +61,7 @@ func gymlogs(f *excelize.File) {
 		if i == 0 {
 			continue
 		}
-		fmt.Printf("%s %s", log[0], log[1])
+		fmt.Printf("%s %s \n", log[0], log[1])
 	}
 }
 

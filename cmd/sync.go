@@ -5,13 +5,14 @@ Copyright © 2026 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"TODOCLI/services"
+	"fmt"
+
 	"github.com/spf13/cobra"
 )
 
-// gymCmd represents the gym command
-var gymCmd = &cobra.Command{
-	Use:   "gym",
+// syncCmd represents the sync command
+var syncCmd = &cobra.Command{
+	Use:   "sync",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
@@ -20,23 +21,20 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		log, _ := cmd.Flags().GetInt("log")
-		day, _ := cmd.Flags().GetString("day")
-		services.TagGym(log, day)
+		fmt.Println("sync called")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(gymCmd)
-	gymCmd.Flags().IntP("log", "l", 0, "Gym log")
-	gymCmd.Flags().StringP("day", "d", "", "Tag day")
+	rootCmd.AddCommand(syncCmd)
+
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// gymCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// syncCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// gymCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// syncCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
