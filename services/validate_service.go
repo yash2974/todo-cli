@@ -43,7 +43,7 @@ func validateData(f *excelize.File) error {
 
 // if validationErrorCount > 0, then there is a field missing somewhere - repopulate everthing for data integrity
 func validateFields(f *excelize.File) error {
-	// first check for tasks (Sheet1)
+	// first check for tasks (Sheet1) - WILL ADD SHEET2 CONTEXT LATER
 	intended := []string{"ID", "Title", "Done", "Created_On", "Finished_On", "Tag"}
 	var output []string
 	validationErrorCount := 0
@@ -92,6 +92,35 @@ func validateFields(f *excelize.File) error {
 		fmt.Println("Faps Validated Sucessfully!")
 	}
 
+	//third - check gym
+	intendedGym := []string{"Date", "Description"}
+	var outputGym []string
+	i = 0
+	for ch := 'A'; ch <= 'B'; ch++ {
+		cellIndex := fmt.Sprintf("%c1", ch)
+		value, _ := f.GetCellValue("Sheet3", cellIndex)
+		if value != intendedGym[i] {
+			validationErrorCount += 1
+		}
+		outputGym = append(outputGym, value)
+		i += 1
+	}
+	if !slices.Equal(outputGym, intendedGym) {
+		fmt.Println("Gym Fields Validation Error! Running Clean up and reinitialization...")
+	} else {
+		fmt.Println("Gym Validated Sucessfully!")
+	}
+	if validationErrorCount > 0 {
+		// run function repopulate fields
+		// TODO: make this func
+		// will send value as a parameter and then return the new value of errorCount
+		validationErrorCount = repopulateFieldsGym(f, validationErrorCount)
+		if validationErrorCount > 0 {
+			fmt.Println("Error Validation - Gym Sheets")
+			return errors.New("validation failed: missing header row for gym sheet")
+		}
+	}
+
 	return nil
 }
 
@@ -125,4 +154,17 @@ func repopulateFieldsTasks(f *excelize.File, errorCount int) int {
 	}
 	return 0
 
+}
+
+func repopulateFieldsGym(f *excelize.File, errorCount int) int {
+	f.SetCellValue("Sheet3", "A1", "Date")
+	f.SetCellValue("Sheet3", "B1", "Description")
+	err := f.Save()
+	if err != nil {
+		fmt.Println("Error Saving File")
+		return 6
+	} else {
+		fmt.Println("Gym Fields reininitiated successfully")
+	}
+	return 0
 }
