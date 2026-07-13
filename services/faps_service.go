@@ -9,7 +9,7 @@ import (
 func Faps(reset bool, increment bool) {
 	filePath := getExcelFilePath()
 	f, err := excelize.OpenFile(filePath)
-	currentStreak, err := f.GetCellValue("Sheet2", "B2")
+	currentStreak, err := f.GetCellValue("Sheet2", "B3")
 
 	if err != nil {
 		fmt.Println("Error reading cell:", err)
@@ -30,7 +30,7 @@ func Faps(reset bool, increment bool) {
 	
 
 
-	f.SetCellValue("Sheet2", "B2", strconv.Itoa(newStreakCount))
+	f.SetCellValue("Sheet2", "B3", strconv.Itoa(newStreakCount))
 	err = f.Save()
 	if err != nil {
 		fmt.Println("Error saving file")

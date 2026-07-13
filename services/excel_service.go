@@ -16,6 +16,11 @@ func getExcelFilePath() string {
 	return filePath
 }
 
+func getBackupExcelFilePath() string {
+	filePath := "C:\\Users\\yashb\\Documents\\todocli-backups\\Backup.xlsx"
+	return filePath
+}
+
 func RowsGetter(f *excelize.File) [][]string {
 	rows, err := f.GetRows("Sheet1")
 	if err != nil {
