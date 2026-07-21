@@ -46,7 +46,7 @@ func IsExcelAvailable() bool {
 	return true
 }
 
-func AddTaskExcel(taskTitle string) bool {
+func AddTaskExcel(taskTitle string, tag string) bool {
 	filePath := getExcelFilePath()
 	f, err := excelize.OpenFile(filePath)
 	if err != nil {
@@ -68,12 +68,17 @@ func AddTaskExcel(taskTitle string) bool {
 	}
 	num, _ := strconv.Atoi(value)
 	newId := num + 1
-
+	tagValue := "nil"
+	if tag != "" {
+		tagValue = tag
+	}
 	createdOn := time.Now().Format("02-01-2006 15:04:05")
 	f.SetCellValue("Sheet1", fmt.Sprintf("A%d", nextRow), newId)
 	f.SetCellValue("Sheet1", fmt.Sprintf("B%d", nextRow), taskTitle)
 	f.SetCellValue("Sheet1", fmt.Sprintf("C%d", nextRow), "false")
 	f.SetCellValue("Sheet1", fmt.Sprintf("D%d", nextRow), createdOn)
+	f.SetCellValue("Sheet1", fmt.Sprintf("E%d", nextRow), "nil")
+	f.SetCellValue("Sheet1", fmt.Sprintf("F%d", nextRow), tagValue)
 	f.SetCellValue("Sheet2", "B1", newId)
 	err = f.Save()
 	if err != nil {
@@ -110,7 +115,6 @@ func ReadExcel(count int, done string) {
 		fmt.Println(err)
 		return
 	}
-	fmt.Printf("%-5s %-25s %-10s %-25s\n", "ID", "Title", "Done", "Created_On")
 	printed := 0
 	for i, row := range rows {
 		if i == 0 {
@@ -119,13 +123,12 @@ func ReadExcel(count int, done string) {
 		if row[2] != done {
 			continue
 		}
-		fmt.Printf(
-			"%-5s %-25s %-10s %-25s\n",
-			row[0],
-			row[1],
-			row[2],
-			row[3],
-		)
+		fmt.Printf("Task ID: %s\n", row[0])
+		fmt.Printf("Task: %s\n", row[1])
+		fmt.Printf("Completed: %s\n", row[2])
+		fmt.Printf("Created At: %s\n", row[3])
+		fmt.Printf("Completed At: %s\n", row[4])
+		fmt.Printf("Tag: %s\n\n", row[5])
 		printed++
 		if count > 0 && printed >= count {
 			break
@@ -281,7 +284,7 @@ func DeleteTask(flag string) {
 	fmt.Println("Task deleted successfully")
 }
 
-func EditTaskExcel(task_id string, done string, taskTitle string) {
+func EditTaskExcel(task_id string, done string, taskTitle string, taskTag string) {
 	filePath := getExcelFilePath()
 	f, err := excelize.OpenFile(filePath)
 	if err != nil {
@@ -307,13 +310,19 @@ func EditTaskExcel(task_id string, done string, taskTitle string) {
 		fmt.Println("Task not found!")
 		return
 	}
-
+	
 	if done != "" {
+		finishedOn := time.Now().Format("02-01-2006 15:04:05")
 		f.SetCellValue("Sheet1", fmt.Sprintf("C%d", taskRowIndex+1), done)
+		f.SetCellValue("Sheet1", fmt.Sprintf("E%d", taskRowIndex+1), finishedOn)
 	}
 
 	if taskTitle != "" {
 		f.SetCellValue("Sheet1", fmt.Sprintf("B%d", taskRowIndex+1), taskTitle)
+	}
+
+	if taskTag != "" {
+		f.SetCellValue("Sheet1", fmt.Sprintf("F%d", taskRowIndex+1), taskTag)
 	}
 
 	err = f.Save()

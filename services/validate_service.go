@@ -38,6 +38,40 @@ func Validate(check string) error {
 }
 
 func validateData(f *excelize.File) error {
+
+	//first check for tasks (Sheet1)
+	rows, err := f.GetRows("Sheet1")
+	if err != nil {
+		fmt.Println(err)
+		return errors.New("")
+	}
+	updated := 0
+	for i := range rows {
+		if i == 0 {
+			continue
+		}
+		
+		for ch := 'A'; ch <= 'F'; ch++ {
+			cellIndex := fmt.Sprintf("%c%d", ch, i+1)
+			val, err := f.GetCellValue("Sheet1", cellIndex)
+			if err != nil {
+				f.SetCellValue("Sheet1", cellIndex, "nil")
+				updated += 1
+			}
+			if val == "" {
+				f.SetCellValue("Sheet1", cellIndex, "nil")
+				updated += 1
+			}
+		}
+	}
+
+	// Save changes
+	if updated > 0 {
+		if err := f.Save(); err != nil {
+			fmt.Println(err)
+		}
+	}
+
 	return nil
 }
 

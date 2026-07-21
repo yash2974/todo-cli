@@ -21,14 +21,15 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		taskTitle, _ := cmd.Flags().GetString("title")
-
-		services.AddTaskExcel(taskTitle)
+		tag, _ := cmd.Flags().GetString("tag")
+		services.AddTaskExcel(taskTitle, tag)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(addCmd)
 	addCmd.Flags().StringP("title", "T", "empty task", "Task Title")
+	addCmd.Flags().StringP("tag", "t", "", "Tags")
 	addCmd.MarkFlagRequired("title")
 
 	// Here you will define your flags and configuration settings.
