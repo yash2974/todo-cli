@@ -22,7 +22,8 @@ to quickly create a Cobra application.`,
 		// fmt.Println("list called")
 		count, _ := cmd.Flags().GetInt("count")  // Use GetInt for IntP
 		done, _ := cmd.Flags().GetString("done") // Use GetBool for BoolP
-		services.ReadExcel(count, done)
+		tag, _ := cmd.Flags().GetString("tag")
+		services.ReadExcel(count, done, tag)
 	},
 }
 
@@ -31,6 +32,7 @@ func init() {
 	// StringP(name, shorthand, defaultValue, description) - convention
 	listCmd.Flags().IntP("count", "c", 5, "Number of tasks")
 	listCmd.Flags().StringP("done", "d", "false", "task done?")
+	listCmd.Flags().StringP("tag", "t", "", "filter tags")
 	// TODO: add pagination later
 	// Here you will define your flags and configuration settings.
 

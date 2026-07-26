@@ -2,11 +2,14 @@ package services
 
 import (
 	"fmt"
-	"github.com/xuri/excelize/v2"
-	"time"
-	"strconv"
-	"path/filepath"
 	"os"
+	"path/filepath"
+	"slices"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/xuri/excelize/v2"
 )
 
 func getExcelFilePath() string {
@@ -89,7 +92,7 @@ func AddTaskExcel(taskTitle string, tag string) bool {
 	return true
 }
 
-func ReadExcel(count int, done string) {
+func ReadExcel(count int, done string, tag string) {
 	filePath := getExcelFilePath()
 	f, err := excelize.OpenFile(filePath)
 	if err != nil {
@@ -115,20 +118,29 @@ func ReadExcel(count int, done string) {
 		fmt.Println(err)
 		return
 	}
+	tag = strings.ToLower(tag)
 	printed := 0
-	for i, row := range rows {
+	for i, row := range slices.Backward(rows) {
+		tagValue := strings.ToLower(row[5])
+		
 		if i == 0 {
 			continue
 		}
 		if row[2] != done {
 			continue
 		}
-		fmt.Printf("Task ID: %s\n", row[0])
-		fmt.Printf("Task: %s\n", row[1])
-		fmt.Printf("Completed: %s\n", row[2])
+		if tag != "" && tagValue != tag && tagValue != "nil" {
+			continue
+		}
+		fmt.Printf("%s: %s - {%s}\n", row[0], row[1], row[5])
+		if done == "true" {
+			fmt.Printf("Completed: %s\n", row[2])
+		}
 		fmt.Printf("Created At: %s\n", row[3])
-		fmt.Printf("Completed At: %s\n", row[4])
-		fmt.Printf("Tag: %s\n\n", row[5])
+		if done == "true" {
+			fmt.Printf("Completed At: %s\n", row[4])
+		}
+		fmt.Printf("\n")
 		printed++
 		if count > 0 && printed >= count {
 			break
