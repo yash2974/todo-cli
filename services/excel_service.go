@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
+	"TODOCLI/utility"
 	"github.com/xuri/excelize/v2"
 )
 
@@ -132,13 +132,13 @@ func ReadExcel(count int, done string, tag string) {
 		if tag != "" && tagValue != tag && tagValue != "nil" {
 			continue
 		}
-		fmt.Printf("%s: %s - {%s}\n", row[0], row[1], row[5])
+		utility.PrintCMD(fmt.Sprintf("%s: %s - {%s}\n", row[0], row[1], row[5]), "Orange")
 		if done == "true" {
-			fmt.Printf("Completed: %s\n", row[2])
+			utility.PrintCMD(fmt.Sprintf("Completed: %s\n", row[2]), "White")
 		}
-		fmt.Printf("Created At: %s\n", row[3])
+		utility.PrintCMD(fmt.Sprintf("Created At: %s\n", row[3]), "White")
 		if done == "true" {
-			fmt.Printf("Completed At: %s\n", row[4])
+			utility.PrintCMD(fmt.Sprintf("Completed At: %s\n", row[4]), "White")
 		}
 		fmt.Printf("\n")
 		printed++

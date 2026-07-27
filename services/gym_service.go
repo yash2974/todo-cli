@@ -47,7 +47,6 @@ func TagGym(log int, day string) {
 	default: 
 		gymlogs(f, log)
 	}
-	return
 }
 
 //function for gym logs
