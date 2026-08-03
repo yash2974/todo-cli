@@ -51,7 +51,7 @@ func validateData(f *excelize.File) error {
 			continue
 		}
 		
-		for ch := 'A'; ch <= 'F'; ch++ {
+		for ch := 'A'; ch <= 'G'; ch++ {
 			cellIndex := fmt.Sprintf("%c%d", ch, i+1)
 			val, err := f.GetCellValue("Sheet1", cellIndex)
 			if err != nil {
@@ -78,11 +78,11 @@ func validateData(f *excelize.File) error {
 // if validationErrorCount > 0, then there is a field missing somewhere - repopulate everthing for data integrity
 func validateFields(f *excelize.File) error {
 	// first check for tasks (Sheet1) - WILL ADD SHEET2 CONTEXT LATER
-	intended := []string{"ID", "Title", "Done", "Created_On", "Finished_On", "Tag"}
+	intended := []string{"ID", "Title", "Done", "Created_On", "Finished_On", "Tag", "Priority"}
 	var output []string
 	validationErrorCount := 0
 	i := 0
-	for ch := 'A'; ch <= 'F'; ch++ {
+	for ch := 'A'; ch <= 'G'; ch++ {
 		cellIndex := fmt.Sprintf("%c1", ch)
 		value, _ := f.GetCellValue("Sheet1", cellIndex)
 		if value != intended[i] {
@@ -178,6 +178,7 @@ func repopulateFieldsTasks(f *excelize.File, errorCount int) int {
 	f.SetCellValue("Sheet1", "D1", "Created_On")
 	f.SetCellValue("Sheet1", "E1", "Finished_On")
 	f.SetCellValue("Sheet1", "F1", "Tag")
+	f.SetCellValue("Sheet1", "G1", "Priority")
 
 	err := f.Save()
 	if err != nil {

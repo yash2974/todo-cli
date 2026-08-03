@@ -49,7 +49,7 @@ func IsExcelAvailable() bool {
 	return true
 }
 
-func AddTaskExcel(taskTitle string, tag string) bool {
+func AddTaskExcel(taskTitle string, tag string, priority string) bool {
 	filePath := getExcelFilePath()
 	f, err := excelize.OpenFile(filePath)
 	if err != nil {
@@ -75,6 +75,11 @@ func AddTaskExcel(taskTitle string, tag string) bool {
 	if tag != "" {
 		tagValue = tag
 	}
+	allowedPriority := []string{"urgent", "high", "normal", "low"}
+	if !slices.Contains(allowedPriority, priority) {
+		utility.PrintCMD("Invalid Priority!", "Red")
+		return false
+	}
 	createdOn := time.Now().Format("02-01-2006 15:04:05")
 	f.SetCellValue("Sheet1", fmt.Sprintf("A%d", nextRow), newId)
 	f.SetCellValue("Sheet1", fmt.Sprintf("B%d", nextRow), taskTitle)
@@ -82,6 +87,7 @@ func AddTaskExcel(taskTitle string, tag string) bool {
 	f.SetCellValue("Sheet1", fmt.Sprintf("D%d", nextRow), createdOn)
 	f.SetCellValue("Sheet1", fmt.Sprintf("E%d", nextRow), "nil")
 	f.SetCellValue("Sheet1", fmt.Sprintf("F%d", nextRow), tagValue)
+	f.SetCellValue("Sheet1", fmt.Sprintf("G%d", nextRow), priority)
 	f.SetCellValue("Sheet2", "B1", newId)
 	err = f.Save()
 	if err != nil {
@@ -215,88 +221,88 @@ func ExcelTaskDetail(taskId string) []string {
 }
 
 
-//TODO: understand - YASH
-func DeleteTask(flag string) {
+// //TODO: understand - YASH - wrong
+// func DeleteTask(flag string) {
 	
-    if flag == "0" {
-        fmt.Printf("Error!")
-    }
-	filePath := getExcelFilePath()
-	f, err := excelize.OpenFile(filePath)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	rows, err := f.GetRows("Sheet1")
-	if err != nil {
-		fmt.Println(err)
-	}
-	if flag == "all" {
-		fmt.Println("This will delete all tasks - yes or no")
-		var option string
-		fmt.Scanln(&option)
-		count := 0
-		if option == "yes" {
-			for rowIndex := len(rows) - 1; rowIndex >= 1; rowIndex-- {
+//     if flag == "0" {
+//         fmt.Printf("Error!")
+//     }
+// 	filePath := getExcelFilePath()
+// 	f, err := excelize.OpenFile(filePath)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 		return
+// 	}
+// 	rows, err := f.GetRows("Sheet1")
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
+// 	if flag == "all" {
+// 		fmt.Println("This will delete all tasks - yes or no")
+// 		var option string
+// 		fmt.Scanln(&option)
+// 		count := 0
+// 		if option == "yes" {
+// 			for rowIndex := len(rows) - 1; rowIndex >= 1; rowIndex-- {
 
-				if len(rows[rowIndex]) == 0 {
-					continue
-				}
+// 				if len(rows[rowIndex]) == 0 {
+// 					continue
+// 				}
 
-				err = f.RemoveRow("Sheet1", rowIndex+1)
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
+// 				err = f.RemoveRow("Sheet1", rowIndex+1)
+// 				if err != nil {
+// 					fmt.Println(err)
+// 					return
+// 				}
 
-				count++
-			}
+// 				count++
+// 			}
 
-			if err := f.Save(); err != nil {
-				fmt.Println(err)
-				return
-			}
+// 			if err := f.Save(); err != nil {
+// 				fmt.Println(err)
+// 				return
+// 			}
 
-			fmt.Printf("%d tasks deleted successfully\n", count)
-			return
-		} else {
-			return
-		}
-	}
-	//iterate through rows and then find the row number of the task id
-	rowNumber := -1
-	for rowIndex, row := range rows {
+// 			fmt.Printf("%d tasks deleted successfully\n", count)
+// 			return
+// 		} else {
+// 			return
+// 		}
+// 	}
+// 	//iterate through rows and then find the row number of the task id
+// 	rowNumber := -1
+// 	for rowIndex, row := range rows {
 
-		// skip empty rows
-		if len(row) == 0 {
-			continue
-		}
+// 		// skip empty rows
+// 		if len(row) == 0 {
+// 			continue
+// 		}
 
-		if row[0] == flag {
-			// Excel rows start from 1
-			rowNumber = rowIndex + 1
-			break
-		}
-	}
-	if rowNumber == -1 {
-		fmt.Println("Task not found")
-		return
-	}
-	err = f.RemoveRow("Sheet1", rowNumber)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+// 		if row[0] == flag {
+// 			// Excel rows start from 1
+// 			rowNumber = rowIndex + 1
+// 			break
+// 		}
+// 	}
+// 	if rowNumber == -1 {
+// 		fmt.Println("Task not found")
+// 		return
+// 	}
+// 	err = f.RemoveRow("Sheet1", rowNumber)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 		return
+// 	}
 
-	// Save changes
-	if err := f.Save(); err != nil {
-		fmt.Println(err)
-	}
+// 	// Save changes
+// 	if err := f.Save(); err != nil {
+// 		fmt.Println(err)
+// 	}
 
-	fmt.Println("Task deleted successfully")
-}
+// 	fmt.Println("Task deleted successfully")
+// }
 
-func EditTaskExcel(task_id string, done string, taskTitle string, taskTag string) {
+func EditTaskExcel(task_id string, done string, taskTitle string, taskTag string, taskPriority string) {
 	filePath := getExcelFilePath()
 	f, err := excelize.OpenFile(filePath)
 	if err != nil {
@@ -335,6 +341,16 @@ func EditTaskExcel(task_id string, done string, taskTitle string, taskTag string
 
 	if taskTag != "" {
 		f.SetCellValue("Sheet1", fmt.Sprintf("F%d", taskRowIndex+1), taskTag)
+	}
+
+	allowedPriority := []string{"urgent", "high", "normal", "low"}
+	if !slices.Contains(allowedPriority, taskPriority) {
+		utility.PrintCMD("Invalid Priority!", "Red")
+		return 
+	}
+
+	if taskPriority != "" {
+		f.SetCellValue("Sheet1", fmt.Sprintf("G%d", taskRowIndex+1), taskPriority)
 	}
 
 	err = f.Save()

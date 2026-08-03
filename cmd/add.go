@@ -22,7 +22,8 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		taskTitle, _ := cmd.Flags().GetString("title")
 		tag, _ := cmd.Flags().GetString("tag")
-		services.AddTaskExcel(taskTitle, tag)
+		priority, _ := cmd.Flags().GetString("priority")
+		services.AddTaskExcel(taskTitle, tag, priority)
 	},
 }
 
@@ -30,6 +31,7 @@ func init() {
 	rootCmd.AddCommand(addCmd)
 	addCmd.Flags().StringP("title", "T", "empty task", "Task Title")
 	addCmd.Flags().StringP("tag", "t", "", "Tags")
+	addCmd.Flags().StringP("priority", "p", "normal", "assign priority")
 	addCmd.MarkFlagRequired("title")
 
 	// Here you will define your flags and configuration settings.

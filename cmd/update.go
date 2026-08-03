@@ -25,7 +25,8 @@ to quickly create a Cobra application.`,
 		done, _ := cmd.Flags().GetString("done")
 		taskTitle, _ := cmd.Flags().GetString("edit")
 		taskTag, _ := cmd.Flags().GetString("tag")
-		services.EditTaskExcel(taskId, done, taskTitle, taskTag)
+		taskPriority, _ := cmd.Flags().GetString("priority")
+		services.EditTaskExcel(taskId, done, taskTitle, taskTag, taskPriority)
 	},
 }
 
@@ -35,6 +36,7 @@ func init() {
 	updateCmd.Flags().StringP("done", "D", "", "Task Completed")
 	updateCmd.Flags().StringP("edit", "E", "", "Edit Task")
 	updateCmd.Flags().StringP("tag", "t", "", "Add Tag")
+	updateCmd.Flags().StringP("priority", "p", "", "Add Priority")
 	updateCmd.MarkFlagRequired("id")
 	// Here you will define your flags and configuration settings.
 
