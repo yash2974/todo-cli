@@ -136,7 +136,19 @@ func ReadExcel(count int, done string, tag string) {
 	printed := 0
 	for i, row := range slices.Backward(rows) {
 		tagValue := strings.ToLower(row[5])
-		
+		color := "White"
+		switch row[6]{
+		case "low":
+			color = "Green"
+		case "normal":
+			color = "Yellow"
+		case "high":
+			color = "Orange"
+		case "urgent":
+			color = "Red"
+		default:
+			color = "White"
+		}
 		if i == 0 {
 			continue
 		}
@@ -146,6 +158,9 @@ func ReadExcel(count int, done string, tag string) {
 		if tag != "" && tagValue != tag && tagValue != "nil" {
 			continue
 		}
+		utility.PrintCMD("[", "White")
+		utility.PrintCMD(row[6], color)
+		utility.PrintCMD("] ", "White")
 		utility.PrintCMD(fmt.Sprintf("%s: %s - {%s}\n", row[0], row[1], row[5]), "Orange")
 		if done == "true" {
 			utility.PrintCMD(fmt.Sprintf("Completed: %s\n", row[2]), "White")
