@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 	"os"
+	"log"
 	"path/filepath"
 	"slices"
 	"strconv"
@@ -10,18 +11,25 @@ import (
 	"time"
 	"TODOCLI/utility"
 	"github.com/xuri/excelize/v2"
+	"github.com/joho/godotenv"
 )
 
 func getExcelFilePath() string {
-	// err := godotenv.Load()
-	// fmt.Println("Load err:", err)
-	filePath := "C:\\Users\\yashb\\Documents\\Book1.xlsx"
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	filePath := os.Getenv("FILEPATH")
 	return filePath
 }
 
 func getBackupExcelFilePath() string {
-	filePath := "C:\\Users\\yashb\\Documents\\todocli-backups\\Backup.xlsx"
-	return filePath
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	backupFilePath := os.Getenv("BACKUPFILEPATH")
+	return backupFilePath
 }
 
 func RowsGetter(f *excelize.File) [][]string {
