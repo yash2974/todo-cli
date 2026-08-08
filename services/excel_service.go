@@ -344,7 +344,7 @@ func EditTaskExcel(task_id string, done string, taskTitle string, taskTag string
 	}
 
 	allowedPriority := []string{"urgent", "high", "normal", "low"}
-	if !slices.Contains(allowedPriority, taskPriority) {
+	if taskPriority!="" && !slices.Contains(allowedPriority, taskPriority) {
 		utility.PrintCMD("Invalid Priority!", "Red")
 		return 
 	}
