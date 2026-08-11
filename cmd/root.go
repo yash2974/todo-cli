@@ -6,7 +6,7 @@ package cmd
 
 import (
 	"os"
-
+	"TODOCLI/config"
 	"github.com/spf13/cobra"
 )
 
@@ -45,6 +45,7 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
+	cobra.OnInitialize(config.Init)
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
