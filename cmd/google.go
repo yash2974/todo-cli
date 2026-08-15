@@ -20,12 +20,31 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		google.ReadCalender()
+		taskType, _ := cmd.Flags().GetString("type")
+		startTime, _ := cmd.Flags().GetString("start_time")
+		endTime, _ := cmd.Flags().GetString("end_time")
+		title, _ := cmd.Flags().GetString("title")
+		location, _ := cmd.Flags().GetString("location")
+		description, _ := cmd.Flags().GetString("description")
+		timeZone, _ := cmd.Flags().GetString("timeZone")
+		google.Calender(taskType, startTime, endTime, title, location, description, timeZone)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(googleCmd)
+	googleCmd.Flags().StringP("type", "t", "", "Enter Task Type")
+	googleCmd.Flags().StringP("start_time", "s", "", "Enter Start Time")
+	googleCmd.Flags().StringP("end_time", "e", "", "Enter End Time")
+	googleCmd.Flags().StringP("title", "T", "", "Enter Title/Summary")
+	googleCmd.Flags().StringP("location", "l", "", "Enter Location")
+	googleCmd.Flags().StringP("description", "d", "", "Enter Description")
+	googleCmd.Flags().StringP("timeZone", "z", "Asia/Kolkata", "Enter Timezone")
+	googleCmd.MarkFlagRequired("type")
+	googleCmd.MarkFlagRequired("start_time")
+	googleCmd.MarkFlagRequired("end_time")
+	googleCmd.MarkFlagRequired("title")
+	googleCmd.MarkFlagRequired("location")
 
 	// Here you will define your flags and configuration settings.
 
