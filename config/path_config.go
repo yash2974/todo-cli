@@ -15,6 +15,7 @@ func Init() {
 	home, _ := os.UserHomeDir()
 	viper.SetDefault("filepath", filepath.Join(home, ".todocli", "Book1.xlsx"))
 	viper.SetDefault("backupfilepath", filepath.Join(home, ".todocli", "Backup.xlsx"))
+	viper.SetDefault("configpath", filepath.Join(home, ".todocli"))
 
 }
 

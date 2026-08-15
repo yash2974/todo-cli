@@ -7,20 +7,80 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
-
+	"os/exec"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/option"
+
+	appconfig "TODOCLI/config"
 )
+
+func authenticate() (*oauth2.Token, error) {
+    config := &oauth2.Config{
+        ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
+        ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
+        Endpoint:     google.Endpoint,
+        Scopes: []string{
+            "https://www.googleapis.com/auth/calendar.readonly",
+        },
+        RedirectURL: "http://localhost:8080/callback",
+    }
+
+    server := &http.Server{
+        Addr: "localhost:8080",
+    }
+
+    codeChan := make(chan string)
+
+    http.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
+        code := r.URL.Query().Get("code")
+
+        if code == "" {
+            http.Error(w, "Authorization failed", http.StatusBadRequest)
+            return
+        }
+
+        fmt.Fprintln(w, "Authorization successful! You can close this window.")
+
+        codeChan <- code
+    })
+
+    go func() {
+        if err := server.ListenAndServe(); err != nil &&
+            err != http.ErrServerClosed {
+            log.Println(err)
+        }
+    }()
+
+    authURL := config.AuthCodeURL(
+        "random-state-value",
+        oauth2.AccessTypeOffline,
+    )
+
+    fmt.Println("Opening browser...")
+    exec.Command("open", authURL).Start()
+
+    code := <-codeChan
+
+    token, err := config.Exchange(context.Background(), code)
+    if err != nil {
+        return nil, err
+    }
+
+    server.Shutdown(context.Background())
+
+    return token, nil
+}
 
 // Retrieve a token, saves the token, then returns the generated client.
 func getClient(config *oauth2.Config) *http.Client {
 	// The file token.json stores the user's access and refresh tokens, and is
 	// created automatically when the authorization flow completes for the first
 	// time.
-	tokFile := "token.json"
+	tokFile := filepath.Join(appconfig.ReadPath("configpath"), "token.json")
 	tok, err := tokenFromFile(tokFile)
 	if err != nil {
 		tok = getTokenFromWeb(config)
@@ -31,19 +91,65 @@ func getClient(config *oauth2.Config) *http.Client {
 
 // Request a token from the web, then returns the retrieved token.
 func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
-	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-	fmt.Printf("Go to the following link in your browser then type the "+
-		"authorization code: \n%v\n", authURL)
+	codeChan := make(chan string)
 
-	var authCode string
-	if _, err := fmt.Scan(&authCode); err != nil {
-		log.Fatalf("Unable to read authorization code: %v", err)
+	server := &http.Server{
+		Addr: "localhost:8080",
 	}
 
-	tok, err := config.Exchange(context.TODO(), authCode)
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
+		code := r.URL.Query().Get("code")
+
+		if code == "" {
+			http.Error(w, "Authorization failed", http.StatusBadRequest)
+			return
+		}
+
+		fmt.Fprintln(w, "Authorization successful! You can close this window.")
+
+		codeChan <- code
+	})
+
+	server.Handler = mux
+
+	go func() {
+		if err := server.ListenAndServe(); err != nil &&
+			err != http.ErrServerClosed {
+			log.Println(err)
+		}
+	}()
+
+	// IMPORTANT:
+	// This must match the redirect URI registered in Google Cloud.
+	config.RedirectURL = "http://localhost:8080/callback"
+
+	authURL := config.AuthCodeURL(
+		"state-token",
+		oauth2.AccessTypeOffline,
+	)
+
+	fmt.Println("Opening browser...")
+
+	if err := exec.Command("open", authURL).Start(); err != nil {
+		log.Printf("Unable to open browser: %v", err)
+		fmt.Println("Open this URL manually:")
+		fmt.Println(authURL)
+	}
+
+	// Wait for Google to redirect back to localhost.
+	authCode := <-codeChan
+
+	// Exchange authorization code for tokens.
+	tok, err := config.Exchange(context.Background(), authCode)
 	if err != nil {
 		log.Fatalf("Unable to retrieve token from web: %v", err)
 	}
+
+	// Stop the temporary callback server.
+	server.Shutdown(context.Background())
+
 	return tok
 }
 
@@ -62,6 +168,9 @@ func tokenFromFile(file string) (*oauth2.Token, error) {
 // Saves a token to a file path.
 func saveToken(path string, token *oauth2.Token) {
 	fmt.Printf("Saving credential file to: %s\n", path)
+	if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
+		log.Fatalf("Unable to create config directory: %v", err)
+	}
 	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		log.Fatalf("Unable to cache oauth token: %v", err)
@@ -72,7 +181,7 @@ func saveToken(path string, token *oauth2.Token) {
 
 func Calender() {
 	ctx := context.Background()
-	b, err := os.ReadFile("credentials.json")
+	b, err := os.ReadFile(filepath.Join(appconfig.ReadPath("configpath"), "credentials.json"))
 	if err != nil {
 		log.Fatalf("Unable to read client secret file: %v", err)
 	}
@@ -82,6 +191,9 @@ func Calender() {
 	if err != nil {
 		log.Fatalf("Unable to parse client secret file to config: %v", err)
 	}
+
+	config.RedirectURL = "http://localhost:8080/callback"
+
 	client := getClient(config)
 
 	srv, err := calendar.NewService(ctx, option.WithHTTPClient(client))
