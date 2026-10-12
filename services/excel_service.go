@@ -1,17 +1,18 @@
 package services
 
 import (
+	"TODOCLI/config"
+	"TODOCLI/utility"
 	"fmt"
-	"os"
 	"log"
+	"os"
 	"path/filepath"
 	"slices"
 	"strconv"
 	"strings"
 	"time"
-	"TODOCLI/utility"
+	"TODOCLI/google"
 	"github.com/xuri/excelize/v2"
-	"TODOCLI/config"
 )
 
 func getExcelFilePath() string {
@@ -87,6 +88,23 @@ func AddTaskExcel(taskTitle string, tag string, priority string) bool {
 		return false
 	}
 	createdOn := time.Now().Format("02-01-2006 15:04:05")
+
+	startTime := google.CheckEvent(taskTitle)
+	var eventRequired bool
+	if startTime != "" {
+		eventRequired = true
+	} else {
+		eventRequired = false
+	}
+	
+	if eventRequired {
+		endTime := google.EndTimeCalculator(startTime)
+		timeZone := "Asia/Kolkata"
+		location := "Home"
+		description := ""
+		google.Calender("event", startTime, endTime, taskTitle, location, description, timeZone)
+	}
+
 	f.SetCellValue("Sheet1", fmt.Sprintf("A%d", nextRow), newId)
 	f.SetCellValue("Sheet1", fmt.Sprintf("B%d", nextRow), taskTitle)
 	f.SetCellValue("Sheet1", fmt.Sprintf("C%d", nextRow), "false")

@@ -67,3 +67,12 @@ func CreateEvent(srv *calendar.Service, startTime string, endTime string, title 
 	fmt.Printf("Event created: %s\n", createdEvent.HtmlLink)
 
 }
+
+func CheckEvent(taskTitle string) string {
+	
+	return ""
+}
+
+func EndTimeCalculator(startTime string) string {
+	return ""
+}
